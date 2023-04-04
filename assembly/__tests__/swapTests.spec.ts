@@ -1,8 +1,8 @@
 import { Args, bytesToU64, stringToBytes, u64ToBytes } from '@massalabs/as-types';
 import { Address, Context } from '@massalabs/massa-as-sdk';
 
-import {ERC20Token1} from '../contracts/token1';
-import {ERC20Token2} from '../contracts/token2';
+import {ERC20Token1} from '../contracts/erc20Token1';
+import {ERC20Token2} from '../contracts/erc20Token2';
 import {SwapToken} from '../contracts/swapToken';
 
 const TOKEN_NAME1 = 'XToken1';
@@ -13,24 +13,6 @@ const DECIMALS: u8 = 8;
 const TOTAL_SUPPLY1: u64 = 540;
 const TOTAL_SUPPLY2: u64 = 890;
 
-/*describe('Group test', () =>
-{
-  test('Testing event', () => 
-  {
-    expect(event([])).toStrictEqual(stringToBytes("I'm an event!"));
-  });
-});*/
-
-
-/*const string1 = 'abc';
-const string2 = 'acc';
-describe('Test 2', () => 
-{
-  test('Testing event 2', () => 
-  {
-    assert(string1 === string2, 'Equals OK');
-  });
-});*/
 
 const emptyBalanceAddress = new Address(
   'A12BqZEQ6sByhRLyEuf0YbQmcF2PsDdkNNG1akBJu9XcjZA1eT',

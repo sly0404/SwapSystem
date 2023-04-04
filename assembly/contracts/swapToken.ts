@@ -15,8 +15,8 @@ import {
     bytesToString,
     byteToBool,
   } from '@massalabs/as-types';
-import {ERC20Token1} from './token1';
-import {ERC20Token2} from './token2';
+import {ERC20Token1} from './erc20Token1';
+import {ERC20Token2} from './erc20Token2';
 
 
 export class SwapToken
