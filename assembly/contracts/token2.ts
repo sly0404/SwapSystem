@@ -229,15 +229,8 @@ export class ERC20Token2
     assert(spenderAllowance >= amount,'transferFrom failed: insufficient allowance',);
     assert(this._transfer(spenderAddress, recipient, amount),'transferFrom failed: invalid amount',);
   
-    this.approve(spenderAddress, owner, spenderAllowance - amount);
-  
-    generateEvent(
-      createEvent(TRANSFER_EVENT_NAME, [
-        spenderAddress.toString(),
-        recipient.toString(),
-        amount.toString(),
-      ]),
-    );
+    this.approve(owner, spenderAddress, spenderAllowance - amount);
+
   }
 
   // ==================================================== //
@@ -275,14 +268,6 @@ export class ERC20Token2
     assert(newAllowance >= amount,'Increasing allowance with requested amount causes an overflow',);
   
     this.approve(owner, spenderAddress, newAllowance);
-  
-    generateEvent(
-      createEvent(APPROVAL_EVENT_NAME, [
-        owner.toString(),
-        spenderAddress.toString(),
-        newAllowance.toString(),
-      ]),
-    );
   }
   
   /**
@@ -314,14 +299,6 @@ export class ERC20Token2
     const newAllowance = current - amount;
   
     this.approve(owner, spenderAddress, newAllowance);
-  
-    generateEvent(
-      createEvent(APPROVAL_EVENT_NAME, [
-        owner.toString(),
-        spenderAddress.toString(),
-        newAllowance.toString(),
-      ]),
-    );
   }
   
   /**
@@ -335,6 +312,14 @@ export class ERC20Token2
   {
     const key = stringToBytes(owner.toString().concat(spenderAddress.toString()));
     Storage.set(key, u64ToBytes(amount));
+
+    generateEvent(
+      createEvent(APPROVAL_EVENT_NAME, [
+        owner.toString(),
+        spenderAddress.toString(),
+        amount.toString(),
+      ]),
+    );
   }
   
 
