@@ -185,6 +185,26 @@ export class ERC20Token2
   
     return true;
   }
+
+  /**
+ * Transfers tokens from the caller's account to the recipient's account.
+ *
+ * @param binaryArgs - Args object serialized as a string containing:
+ * - the recipient's account (address)
+ * - the number of tokens (u64).
+ */
+  public transfer(toAddress: Address, amount: u64): void 
+  {
+    const owner = Context.caller();
+    assert(this._transfer(owner, toAddress, amount),'Transfer failed: Invalid amount',);
+    generateEvent(
+      createEvent(TRANSFER_EVENT_NAME, [
+        owner.toString(),
+        toAddress.toString(),
+        amount.toString(),
+      ]),
+    );
+  }
   
   /**
    * Transfers token ownership from the owner's account to the recipient's account
