@@ -51,29 +51,21 @@ const swapToken = new SwapToken(erc20Token1, erc20Token2);
 
 describe('Initialization', () => {
   test('total supply 1 is properly initialized', () =>
-    expect(erc20Token1.totalSupply([])).toStrictEqual(u64ToBytes(TOTAL_SUPPLY1)));
+    expect(erc20Token1.totalSupply()).toStrictEqual(TOTAL_SUPPLY1));
   test('total supply 2 is properly initialized', () =>
-    expect(erc20Token2.totalSupply([])).toStrictEqual(u64ToBytes(TOTAL_SUPPLY2)));
+    expect(erc20Token2.totalSupply()).toStrictEqual(TOTAL_SUPPLY2));
 });
 
 describe('BalanceOf', () => {
   test('Check an empty balance', () =>
     expect(
       erc20Token1.balanceOf(emptyBalanceAddress),
-    ).toStrictEqual(u64ToBytes(0)));
+    ).toStrictEqual(0));
 
   test('Check a non empty balance', () =>
-    expect(
-      bytesToU64(
-        erc20Token1.balanceOf(address1),
-      ),
-    ).toBe(540));
+    expect(erc20Token1.balanceOf(address1)).toBe(540));
   test('Check a non empty balance', () =>
-    expect(
-      bytesToU64(
-        erc20Token2.balanceOf(address2),
-      ),
-    ).toBe(890));
+    expect(erc20Token2.balanceOf(address2)).toBe(890));
 });
 
 //console.log('Context.caller() = ' + Context.caller().toString());
@@ -86,11 +78,11 @@ describe('Allowance', () => {
     const owner = Context.caller();
     expect(
       erc20Token1.allowance(owner, address1),
-    ).toStrictEqual(u64ToBytes(0));
+    ).toStrictEqual(0);
     erc20Token1.increaseAllowance(address1, allowance1);
     expect(
       erc20Token1.allowance(owner, address1),
-    ).toStrictEqual(u64ToBytes(allowance1));
+    ).toStrictEqual(allowance1);
   });
 
   test('check Allowance 2', () => {
@@ -98,11 +90,11 @@ describe('Allowance', () => {
     const owner = Context.caller();
     expect(
       erc20Token2.allowance(owner, address2),
-    ).toStrictEqual(u64ToBytes(0));
+    ).toStrictEqual(0);
     erc20Token2.increaseAllowance(address2, allowance2);
     expect(
       erc20Token2.allowance(owner, address2),
-    ).toStrictEqual(u64ToBytes(allowance2));
+    ).toStrictEqual(allowance2);
   });
 });
 
@@ -113,36 +105,36 @@ describe('TransferFrom', () => {
   test('TransferFrom address1 to address2', () => {
     const amount: u64 = 5;
     // balance of number of token1 of address1 before transfer
-    const address1BalanceBeforeTransferToken1: u64 = bytesToU64(erc20Token1.balanceOf(address1));
+    const address1BalanceBeforeTransferToken1: u64 = erc20Token1.balanceOf(address1);
     // balance of number of token1 of address2 before transfer
-    const address2BalanceBeforeTransferToken1: u64 = bytesToU64(erc20Token1.balanceOf(address2));
+    const address2BalanceBeforeTransferToken1: u64 = erc20Token1.balanceOf(address2);
     erc20Token1.transferFrom(address1, address2, amount);
     expect(
       erc20Token1.balanceOf(address1),
-    ).toStrictEqual(u64ToBytes(address1BalanceBeforeTransferToken1-amount));
+    ).toStrictEqual(address1BalanceBeforeTransferToken1-amount);
 
     // check if amount1 has been added to balance of token1 of address2
     expect(
       erc20Token1.balanceOf(address2),
-    ).toStrictEqual(u64ToBytes(address2BalanceBeforeTransferToken1+amount));
+    ).toStrictEqual(address2BalanceBeforeTransferToken1+amount);
   });
 
   test('TransferFrom address2 to address1', () => {
     const amount: u64 = 9;
     // balance of number of token2 of address2 before transfer
-    const address2BalanceBeforeTransferToken2: u64 = bytesToU64(erc20Token2.balanceOf(address2));
+    const address2BalanceBeforeTransferToken2: u64 = erc20Token2.balanceOf(address2);
     
     // balance of number of token2 of address1 before transfer
-    const address1BalanceBeforeTransferToken2: u64 = bytesToU64(erc20Token2.balanceOf(address1));
+    const address1BalanceBeforeTransferToken2: u64 = erc20Token2.balanceOf(address1);
     erc20Token2.transferFrom(address2, address1, amount);
     expect(
       erc20Token2.balanceOf(address2),
-    ).toStrictEqual(u64ToBytes(address2BalanceBeforeTransferToken2-amount));
+    ).toStrictEqual(address2BalanceBeforeTransferToken2-amount);
 
     // check if amount1 has been added to balance of token1 of address2
     expect(
       erc20Token2.balanceOf(address1),
-    ).toStrictEqual(u64ToBytes(address1BalanceBeforeTransferToken2+amount));
+    ).toStrictEqual(address1BalanceBeforeTransferToken2+amount);
   });
 });
 
@@ -155,36 +147,36 @@ describe('Swap', () => {
   const amount2: u64 = 4;
   test('Swap between Token1 et Token2', () => {
     // balance of number of token1 of address1 before swap
-    const address1BalanceBeforeTransferToken1: u64 = bytesToU64(erc20Token1.balanceOf(address1));
+    const address1BalanceBeforeTransferToken1: u64 = erc20Token1.balanceOf(address1);
     
     // balance of number of token1 of address2 before swap
-    const address2BalanceBeforeTransferToken1: u64 = bytesToU64(erc20Token1.balanceOf(address2));
+    const address2BalanceBeforeTransferToken1: u64 = erc20Token1.balanceOf(address2);
     
     // balance of number of token2 of address2 before swap
-    const address2BalanceBeforeTransferToken2: u64 = bytesToU64(erc20Token2.balanceOf(address2));
+    const address2BalanceBeforeTransferToken2: u64 = erc20Token2.balanceOf(address2);
     
     // balance of number of token2 of address1 before swap
-    const address1BalanceBeforeTransferToken2: u64 = bytesToU64(erc20Token2.balanceOf(address1));
+    const address1BalanceBeforeTransferToken2: u64 = erc20Token2.balanceOf(address1);
     swapToken.swap(address1, amount1, address2, amount2);
 
     // check if amount1 has been substracted from balance of token1 of address1
     expect(
       erc20Token1.balanceOf(address1),
-    ).toStrictEqual(u64ToBytes(address1BalanceBeforeTransferToken1-amount1));
+    ).toStrictEqual(address1BalanceBeforeTransferToken1-amount1);
 
     // check if amount1 has been added to balance of token1 of address2
     expect(
       erc20Token1.balanceOf(address2),
-    ).toStrictEqual(u64ToBytes(address2BalanceBeforeTransferToken1+amount1));
+    ).toStrictEqual(address2BalanceBeforeTransferToken1+amount1);
 
     // check if amount2 has been substracted from balance of token2 of address2
     expect(
       erc20Token2.balanceOf(address2),
-    ).toStrictEqual(u64ToBytes(address2BalanceBeforeTransferToken2-amount2));
+    ).toStrictEqual(address2BalanceBeforeTransferToken2-amount2);
 
     // check if amount2 has been added to balance of token2 of address1
     expect(
       erc20Token2.balanceOf(address1),
-    ).toStrictEqual(u64ToBytes(address1BalanceBeforeTransferToken2+amount2));
+    ).toStrictEqual(address1BalanceBeforeTransferToken2+amount2);
   });
 });

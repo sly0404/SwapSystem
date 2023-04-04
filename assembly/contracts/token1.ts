@@ -75,18 +75,6 @@ export class ERC20Token1
     this._setBalance(creatorAddress, totalSupply);
   }
   
-  /**
-   * Returns the version of this smart contract.
-   * This versioning is following the best practices defined in https://semver.org/.
-   *
-   * @param _ - unused see https://github.com/massalabs/massa-sc-std/issues/18
-   * @returns token version
-   */
-  public version(_: StaticArray<u8>): StaticArray<u8> 
-  {
-    return stringToBytes('0.0.0');
-  }
-  
   // ======================================================== //
   // ====                 TOKEN ATTRIBUTES               ==== //
   // ======================================================== //
@@ -97,9 +85,9 @@ export class ERC20Token1
    * @param _ - unused see https://github.com/massalabs/massa-sc-std/issues/18
    * @returns token name.
    */
-  public name(_: StaticArray<u8>): StaticArray<u8> 
+  public name(): string
   {
-    return Storage.get(NAME_KEY1);
+    return bytesToString(Storage.get(NAME_KEY1));
   }
   
   /** Returns the symbol of the token.
@@ -107,9 +95,9 @@ export class ERC20Token1
    * @param _ - unused see https://github.com/massalabs/massa-sc-std/issues/18
    * @returns token symbol.
    */
-  public symbol(_: StaticArray<u8>): StaticArray<u8>
+  public symbol(): string
   {
-    return Storage.get(SYMBOL_KEY1);
+    return bytesToString(Storage.get(SYMBOL_KEY1));
   }
   
   /**
@@ -120,9 +108,9 @@ export class ERC20Token1
    * @param _ - unused see https://github.com/massalabs/massa-sc-std/issues/18
    * @returns u64
    */
-  public totalSupply(_: StaticArray<u8>): StaticArray<u8> 
+  public totalSupply(): u64
   {
-    return Storage.get(TOTAL_SUPPLY_KEY1);
+    return bytesToU64(Storage.get(TOTAL_SUPPLY_KEY1));
   }
   
   /**
@@ -132,9 +120,9 @@ export class ERC20Token1
    * @param _ - unused see https://github.com/massalabs/massa-sc-std/issues/18
    * @returns
    */
-  public decimals(_: StaticArray<u8>): StaticArray<u8> 
+  public decimals(): u8
   {
-    return Storage.get(DECIMALS_KEY);
+    return bytesToU64(Storage.get(DECIMALS_KEY));
   }
   
   // ==================================================== //
@@ -142,18 +130,28 @@ export class ERC20Token1
   // ==================================================== //
   
   /**
+  * @param address -
+  * @returns the key of the balance in the storage for the given address
+  */
+  private getBalanceKey(address: Address): StaticArray<u8> 
+  {
+    return stringToBytes(BALANCE_KEY1 + address.toString());
+  }
+  
+  /**
    * Returns the balance of an account.
    *
    * @param binaryArgs - Args object serialized as a string containing an owner's account (Address).
    */
-  public balanceOf(addr: Address): StaticArray<u8> 
+  public balanceOf(addr: Address): u64
   {
-    return u64ToBytes(this._balance(addr));
-  }
-
-  public contextCaller(_: StaticArray<u8>): Address
-  {
-    return Context.caller();
+    const key = this.getBalanceKey(addr);
+    if (Storage.has(key)) 
+    {
+      return bytesToU64(Storage.get(key));
+   }
+    else
+      return 0;
   }
   
   // ==================================================== //
@@ -171,8 +169,8 @@ export class ERC20Token1
    */
   private _transfer(from: Address, to: Address, amount: u64): bool 
   {
-    const currentFromBalance = this._balance(from);
-    const currentToBalance = this._balance(to);
+    const currentFromBalance = this.balanceOf(from);
+    const currentToBalance = this.balanceOf(to);
     const newToBalance = currentToBalance + amount;
   
     if (
@@ -206,18 +204,18 @@ export class ERC20Token1
    */
   public transferFrom(fromAddress: Address, toAddress: Address, amount: u64): void 
   {
-    const spenderAddress = Context.caller();
-    const owner: Address = fromAddress;
+    const owner = Context.caller();
+    const spenderAddress: Address = fromAddress;
     const recipient: Address = toAddress;
-    const spenderAllowance = this._allowance(spenderAddress, owner);
+    const spenderAllowance = this.allowance(owner, spenderAddress);
     assert(spenderAllowance >= amount,'transferFrom failed: insufficient allowance',);
-    assert(this._transfer(owner, recipient, amount),'transferFrom failed: invalid amount',);
+    assert(this._transfer(spenderAddress, recipient, amount),'transferFrom failed: invalid amount',);
   
-    this._approve(owner, spenderAddress, spenderAllowance - amount);
+    this.approve(spenderAddress, owner, spenderAllowance - amount);
   
     generateEvent(
       createEvent(TRANSFER_EVENT_NAME, [
-        owner.toString(),
+        spenderAddress.toString(),
         recipient.toString(),
         amount.toString(),
       ]),
@@ -228,7 +226,8 @@ export class ERC20Token1
   // ====                 ALLOWANCE                  ==== //
   // ==================================================== //
   
-/**
+
+  /**
    * Returns the allowance set on the owner's account for the spender.
    *
    * @param owner - owner's id
@@ -236,22 +235,10 @@ export class ERC20Token1
    *
    * @returns the allowance
    */
-  private _allowance(owner: Address, spenderAddress: Address): u64 
+  public allowance(owner: Address, spenderAddress: Address): u64
   {
     const key = stringToBytes(owner.toString().concat(spenderAddress.toString()));
     return Storage.has(key) ? bytesToU64(Storage.get(key)) : 0;
-  }
-
-  /**
-   * Returns the allowance set on the owner's account for the spender.
-   *
-   * @param binaryArgs - Args object serialized as a string containing:
-   * - the owner's account (address)
-   * - the spender's account (address).
-   */
-  public allowance(owner: Address, spenderAddress: Address): StaticArray<u8> 
-  {
-    return u64ToBytes(this._allowance(owner, spenderAddress));
   }
   
   /**
@@ -266,10 +253,10 @@ export class ERC20Token1
   public increaseAllowance(spenderAddress: Address, amount: u64): void 
   {
     const owner = Context.caller(); 
-    const newAllowance = this._allowance(owner, spenderAddress) + amount;
+    const newAllowance = this.allowance(owner, spenderAddress) + amount;
     assert(newAllowance >= amount,'Increasing allowance with requested amount causes an overflow',);
   
-    this._approve(owner, spenderAddress, newAllowance);
+    this.approve(owner, spenderAddress, newAllowance);
   
     generateEvent(
       createEvent(APPROVAL_EVENT_NAME, [
@@ -298,7 +285,7 @@ export class ERC20Token1
     );
     const amount = args.nextU64().expect('amount argument is missing or invalid');
   
-    const current = this._allowance(owner, spenderAddress);
+    const current = this.allowance(owner, spenderAddress);
   
     assert(
       current >= amount,
@@ -307,7 +294,7 @@ export class ERC20Token1
   
     const newAllowance = current - amount;
   
-    this._approve(owner, spenderAddress, newAllowance);
+    this.approve(owner, spenderAddress, newAllowance);
   
     generateEvent(
       createEvent(APPROVAL_EVENT_NAME, [
@@ -325,7 +312,7 @@ export class ERC20Token1
    * @param spenderAddress - spender address
    * @param amount - amount to set an allowance for
    */
-  private _approve(owner: Address, spenderAddress: Address, amount: u64): void 
+  public approve(owner: Address, spenderAddress: Address, amount: u64): void 
   {
     const key = stringToBytes(owner.toString().concat(spenderAddress.toString()));
     Storage.set(key, u64ToBytes(amount));
@@ -384,45 +371,13 @@ export class ERC20Token1
   }
 
   /**
- * Theses function are intended to be used in different token types (mintable, burnable...).
- * We define them and export in this file to avoid exporting them in the contract entry file,
- * making them callable from the outside world
- *
- */
-
-/**
- * Returns the balance of a given address.
- *
- * @param address - address to get the balance for
- */
-private _balance(address: Address): u64 
-{
-  const key = this.getBalanceKey(address);
-  if (Storage.has(key)) 
+   * Sets the balance of a given address.
+   *
+   * @param address - address to set the balance for
+   * @param balance -
+   */
+  private _setBalance(address: Address, balance: u64): void 
   {
-    return bytesToU64(Storage.get(key));
+    Storage.set(this.getBalanceKey(address), u64ToBytes(balance));
   }
-  else
-    return 0;
-}
-
-/**
- * Sets the balance of a given address.
- *
- * @param address - address to set the balance for
- * @param balance -
- */
-private _setBalance(address: Address, balance: u64): void 
-{
-  Storage.set(this.getBalanceKey(address), u64ToBytes(balance));
-}
-
-/**
- * @param address -
- * @returns the key of the balance in the storage for the given address
- */
-public getBalanceKey(address: Address): StaticArray<u8> 
-{
-  return stringToBytes(BALANCE_KEY1 + address.toString());
-}
 }
