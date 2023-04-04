@@ -232,6 +232,14 @@ export class ERC20Token1
     assert(this._transfer(spenderAddress, recipient, amount),'transferFrom failed: invalid amount',);
   
     this.approve(owner, spenderAddress, spenderAllowance - amount);
+
+    generateEvent(
+      createEvent(TRANSFER_EVENT_NAME, [
+        fromAddress.toString(),
+        toAddress.toString(),
+        amount.toString(),
+      ]),
+    );
   }
   
   // ==================================================== //

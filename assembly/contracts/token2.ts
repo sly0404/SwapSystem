@@ -231,6 +231,13 @@ export class ERC20Token2
   
     this.approve(owner, spenderAddress, spenderAllowance - amount);
 
+    generateEvent(
+      createEvent(TRANSFER_EVENT_NAME, [
+        fromAddress.toString(),
+        toAddress.toString(),
+        amount.toString(),
+      ]),
+    );
   }
 
   // ==================================================== //
