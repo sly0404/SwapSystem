@@ -1,4 +1,3 @@
-import { Args, bytesToU64, stringToBytes, u64ToBytes } from '@massalabs/as-types';
 import { Address, Context } from '@massalabs/massa-as-sdk';
 
 import {ERC20Token1} from '../contracts/erc20Token1';
@@ -50,12 +49,9 @@ describe('BalanceOf', () => {
     expect(erc20Token2.balanceOf(address2)).toBe(890));
 });
 
-//console.log('Context.caller() = ' + Context.caller().toString());
 
-//allowance(owner: Address, spenderAddress: Address): StaticArray<u8>
 describe('Allowance', () => {
   test('check Allowance 1', () => {
-    // balance of number of token1 of address1 before swap
     const allowance1: u64 = 30;
     const owner = Context.caller();
     expect(
@@ -95,7 +91,7 @@ describe('TransferFrom', () => {
       erc20Token1.balanceOf(address1),
     ).toStrictEqual(address1BalanceBeforeTransferToken1-amount);
 
-    // check if amount1 has been added to balance of token1 of address2
+    // check if amount has been added to balance of token1 of address2
     expect(
       erc20Token1.balanceOf(address2),
     ).toStrictEqual(address2BalanceBeforeTransferToken1+amount);
@@ -113,7 +109,7 @@ describe('TransferFrom', () => {
       erc20Token2.balanceOf(address2),
     ).toStrictEqual(address2BalanceBeforeTransferToken2-amount);
 
-    // check if amount1 has been added to balance of token1 of address2
+    // check if amount has been added to balance of token2 of address1
     expect(
       erc20Token2.balanceOf(address1),
     ).toStrictEqual(address1BalanceBeforeTransferToken2+amount);
