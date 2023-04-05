@@ -47,12 +47,11 @@ export class ERC20Token2
    *   );
    * ```
    *
-   * @param stringifyArgs - Args object serialized as a string containing:
-   * - the token name (string)
-   * - the token symbol (string).
-   * - the decimals (u8).
-   * - the totalSupply (u64)
-   * - first owner (address)e
+   * @param name - the token name (string)
+   * @param symbol - the token symbol (string).
+   * @param decimals - the decimals (u8).
+   * @param totalSupply - the totalSupply (u64)
+   * @param creatorAddress - first owner (address)e
    */
   constructor(creatorAddress: Address, name: string, symbol: string, decimals: u8, totalSupply: u64)
   {
