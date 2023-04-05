@@ -25,10 +25,16 @@ const __dirname = path.dirname(path.dirname(__filename));
 const buildFileName1 = 'token1.wasm';
 const buildFileName2 = 'token2.wasm';
 const buildFileName3 = 'swapToken.wasm';
-const constructorParameter1 = 'XToken';
-const constructorParameter2 = 'XTN';
-const constructorParameter3 = 8;
-const constructorParameter4 = 540n;
+const token1constructorParameter1 = 'XToken1';
+const token1constructorParameter2 = 'XTN1';
+const token1constructorParameter3 = 8;
+const token1constructorParameter4 = 540n;
+
+const token2constructorParameter1 = 'XToken2';
+const token2constructorParameter2 = 'XTN2';
+const token2constructorParameter3 = 8;
+const token2constructorParameter4 = 890n;
+
 const adressString1 = 'AU1Aa1owQcdiTvvh84L5WDmLgxagq4Tt3t5AcKLzhUVfjG5mfUcH';
 const adressString2 = 'AU12iSuReUSxGDrmgFAXPgnKnt6BZDWkpUAdjyAZ1mQZVPK69iGox';
 
@@ -41,7 +47,7 @@ const adressString2 = 'AU12iSuReUSxGDrmgFAXPgnKnt6BZDWkpUAdjyAZ1mQZVPK69iGox';
       {
         data: readFileSync(path.join(__dirname, 'build', buildFileName1)),
         coins: fromMAS(0.1),
-        args: new Args().addString(adressString1).addString(constructorParameter1).addString(constructorParameter2).addU8(constructorParameter3).addU64(constructorParameter4),
+        args: new Args().addString(adressString1).addString(token1constructorParameter1).addString(token1constructorParameter2).addU8(token1constructorParameter3).addU64(token1constructorParameter4),
       } as ISCData,
     ],
     0n,
@@ -55,7 +61,7 @@ const adressString2 = 'AU12iSuReUSxGDrmgFAXPgnKnt6BZDWkpUAdjyAZ1mQZVPK69iGox';
       {
         data: readFileSync(path.join(__dirname, 'build', buildFileName2)),
         coins: fromMAS(0.1),
-        args: new Args().addString(adressString2).addString(constructorParameter1).addString(constructorParameter2).addU8(constructorParameter3).addU64(constructorParameter4),
+        args: new Args().addString(adressString2).addString(token2constructorParameter1).addString(token2constructorParameter2).addU8(token2constructorParameter3).addU64(token2constructorParameter4),
       } as ISCData,
     ],
     0n,
@@ -85,8 +91,6 @@ const adressString2 = 'AU12iSuReUSxGDrmgFAXPgnKnt6BZDWkpUAdjyAZ1mQZVPK69iGox';
   const data3 = (deployedInfo3.events?.find((e) => e.data) as IEvent).data;
   const address3 = data3.split('Contract deployed at address:')[1].trim();
   console.log('Contract address 3 = ' + address3);
-  /*const ft = new Address(address);
-  console.log('FT = ' + ft.toString());*/
   console.log('End');
   process.exit(0);
 })();
