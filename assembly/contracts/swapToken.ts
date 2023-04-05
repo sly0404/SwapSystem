@@ -29,11 +29,11 @@ export class SwapToken
   }
 
   /**
-   * Swap of amount1 token1 from address1 to amount2 token2 to address2
+   * Swap of amount1 ERC20Token1 from address1 to amount2 ERC20Token2 to address2
    * @param address1 - the from address
-   * @param amount1 - the number of token of ERC20Token1.
+   * @param amount1 - the number of ERC20Token1.
    * @param address2 - the to address.
-   * @param amount2 - the number of token of ERC20Token2
+   * @param amount2 - the number of ERC20Token2
    */
   swap(address1: Address, amount1: u64, address2: Address, amount2: u64): void
   {
